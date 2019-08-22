@@ -1,0 +1,38 @@
+on: push
+name: Build, test, lint, release
+jobs:
+  npmCi:
+    name: npm ci
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@master
+    - name: npm ci
+      uses: actions/npm@master
+      with:
+        args: ci
+    - name: npm run test
+      uses: actions/npm@master
+      with:
+        args: run test
+    - name: npm run lint
+      uses: actions/npm@master
+      with:
+        args: run lint
+    - name: npm run release:dryrun
+      uses: actions/npm@master
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+      with:
+        args: run release:dryrun
+    - name: master branch only
+      uses: actions/bin/filter@master
+      with:
+        args: branch master
+    - name: npm run release
+      uses: actions/npm@master
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+      with:
+        args: run release
